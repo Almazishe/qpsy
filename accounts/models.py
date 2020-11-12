@@ -7,11 +7,22 @@ from locations.models import Region, City, School
 
 import uuid
 import os
+import random
+import string
 
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return os.path.join('psy_images', filename)
+
+
+ONLINE = 'online'
+OFFLINE = 'offline'
+
+STATUS = (
+    (ONLINE, 'Online'),
+    (OFFLINE, 'Offline')
+)
 
 PSYCHOLOGIST  = 'Психолог'
 SPECIALIST    = 'Специалист'
@@ -49,12 +60,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name='Код',
         unique=True,
         blank=True,
-        null=True
+        null=True,
     )
 
     img = models.ImageField(
         verbose_name='Фото', 
         upload_to=get_file_path, 
+        null=True,
+        blank=True
     )
 
     first_name = models.CharField(
@@ -94,6 +107,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         default = PSYCHOLOGIST, 
     )
 
+    status = models.CharField(
+        verbose_name = 'Статус',
+        max_length = 50,
+        choices = STATUS,
+        default = OFFLINE
+    )
+
     is_spec = models.BooleanField(
         default = False
     )
@@ -116,6 +136,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    def set_psy_code(self):
+        try:
+            self.psy_code = int(''.join(random.choices(string.digits, k=8)))
+            self.save()
+        except:
+            self.set_psy_code()
 
     def get_full_name(self):
         return f'{self.last_name} {self.first_name}'
@@ -127,6 +153,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.email}'
 
     def save(self, *args, **kwargs):
+        if not self.psy_code:
+            self.set_psy_code()
+
         if self.level == ADMINISTRATOR:
             self.is_superuser = True
             self.is_staff = True

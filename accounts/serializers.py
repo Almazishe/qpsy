@@ -1,11 +1,33 @@
 from rest_framework import serializers
 
 from .models import User
-from djoser.serializers import UserCreateSerializer
 
 class UserSerializer(serializers.ModelSerializer):
-    city_name = serializers.CharField(source='city')
-    school_name = serializers.CharField(source='school')
+    
+    city_name = serializers.CharField(source='city.name', read_only=True)
+    school_name = serializers.CharField(source='school.name', read_only=True)
+    level = serializers.CharField(read_only=True)
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name
+        )
+
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name
+        )
+        instance.email = validated_data.get('email', instance.email)
+
+        if self.context['request'].user.is_superuser:
+            instance.level = validated_data.get('level', instance.level)
+        try:
+            if not instance.check_password(validated_data.get('password')):
+                instance.set_password(validated_data.get('password'))
+        except:
+            ...
+        instance.save()
+        return instance
+
 
     class Meta:
         model = User
@@ -16,38 +38,8 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'level',
             'city_name',
-            'school_name'
-        )
-
-
-class UserListSerializer(serializers.ModelSerializer):
-
-    email = serializers.EmailField()
-
-    class Meta:
-        model = User
-        fields = (
-            'psy_code',
-            'full_name',
-            'position',
-            'phone',
-            'email',
-        )
-
-
-class UserDetailSerializer(serializers.ModelSerializer):
-    city_name = serializers.CharField(source='city.name')
-    school_name = serializers.CharField(source='school.name')
-    class Meta:
-        model = User
-        fields = (
-            'psy_code',
-            'first_name',
-            'last_name',
-            'email',
-            'level',
-            'city_name',
-            'school_name'
+            'school_name',
+            'status'
         )
 
 
@@ -69,9 +61,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'last_name', instance.last_name
         )
         instance.email = validated_data.get('email', instance.email)
-        instance.level = validated_data.get('level', instance.level)
-        instance.city = validated_data.get('city', instance.city)
-        instance.school = validated_data.get('school', instance.school)
+
+        if self.context['request'].user.is_superuser:
+            instance.level = validated_data.get('level', instance.level)
         try:
             if not instance.check_password(validated_data.get('password')):
                 instance.set_password(validated_data.get('password'))
