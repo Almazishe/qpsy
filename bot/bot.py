@@ -105,7 +105,8 @@ def send_welcome(message):
                  ('Привет, введи код школьного психолога.'))
         bot.register_next_step_handler(msg, wait_for_code)
     else:
-        tg_user = get_tg_user(message.chat.id)
+        data = get_tg_user(message.chat.id)
+        tg_user = data['tg_user']
         bot.send_message(message.chat.id,   f'{tg_user.name} у тебя уже есть психолог {tg_user.active_psy.first_name} {tg_user.active_psy.last_name}. Вот что я могу: \n\n' + \
                                             ' - /newname - Сменить имя')
 
@@ -207,15 +208,23 @@ def wait_for_choice(message):
             '8-(776)-168-87-60'
         )
     else:
-        tg_user = get_tg_user(message.chat.id)
-        bot.send_message(
-            message.chat.id,
-            f'Напиши что угодно я обязяательно тебе помогу {tg_user.name}'
-        )
+        data = get_tg_user(message.chat.id)
+
+        if data['status']:
+            tg_user = data['tg_user']
+            bot.send_message(
+                message.chat.id,
+                f'Напиши что угодно я обязяательно тебе помогу {tg_user.name}'
+            )
 
 @bot.message_handler(content_types=['text'])
 def any_message(message):
-    bot.send_message(message.chat.id, message.text)
+    data = get_tg_user(message.chat.id)
+    if data['status']:
+        tg_user = data['tg_user']
+        bot.send_message(message.chat.id, f'{tg_user.name} - {message.text}')
+    else:
+        bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
 
 bot.remove_webhook()
 time.sleep(0.1)
