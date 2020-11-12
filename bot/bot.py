@@ -97,26 +97,10 @@ class BotView(View):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-
+    msg = bot.send_message(message.chat.id,
+                ('Привет, введи код школьного психолога.'))
+    bot.register_next_step_handler(msg, wait_for_code)
     
-
-    if not is_exist(message.chat.id):
-        msg = bot.send_message(message.chat.id,
-                 ('Привет, введи код школьного психолога.'))
-        bot.register_next_step_handler(msg, wait_for_code)
-    else:
-        data = get_tg_user(message.chat.id)
-        tg_user = data['tg_user']
-        bot.send_message(message.chat.id,   f'{tg_user.name} у тебя уже есть психолог {tg_user.active_psy.first_name} {tg_user.active_psy.last_name}. Вот что я могу: \n\n' + \
-                                            ' - /newname - Сменить имя')
-
-@bot.message_handler(commands=['newname'])
-def new_name(message):
-    msg = bot.send_message(
-        message.chat.id,
-        text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
-    )
-    bot.register_next_step_handler(msg, wait_for_name)   
 
  
     
@@ -132,7 +116,6 @@ def wait_for_code(message):
 
             bot.register_next_step_handler(msg, wait_for_code)
         else:
-
             tg_user = create_tg_user(message=message, psy=data['psy'])
 
             if tg_user:
@@ -149,7 +132,6 @@ def wait_for_code(message):
                 )
 
                 bot.register_next_step_handler(msg, wait_for_code)
-
     except:
         msg = bot.send_message(
             message.chat.id,
@@ -175,13 +157,12 @@ def wait_for_name(message):
             
 
 
-            msg = bot.send_message(
+            bot.send_message(
                 message.chat.id,
                 text = f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
                 reply_markup = key
             )
 
-            bot.register_next_step_handler(msg, wait_for_choice)
 
         else:
             msg = bot.send_message(
@@ -200,29 +181,29 @@ def wait_for_name(message):
 
 
 
-def wait_for_choice(message):
-    if message.text == reply_keyboard[1]['name']:
-        bot.send_message(
-            message.chat.id,
-            'Позвони тебе помогут\n' + \
-            '8-(776)-168-87-60'
-        )
-    else:
-        data = get_tg_user(message.chat.id)
 
-        if data['status']:
-            tg_user = data['tg_user']
-            bot.send_message(
-                message.chat.id,
-                f'Напиши что угодно я обязяательно тебе помогу {tg_user.name}'
-            )
 
 @bot.message_handler(content_types=['text'])
 def any_message(message):
     data = get_tg_user(message.chat.id)
     if data['status']:
         tg_user = data['tg_user']
-        bot.send_message(message.chat.id, f'{tg_user.name} - {message.text}')
+        if message.text == reply_keyboard[1]['name']:
+            bot.send_message(
+                message.chat.id,
+                'Позвони тебе помогут\n' + \
+                '8-(776)-168-87-60'
+            )
+        elif message.text == reply_keyboard[0]['name']:
+            bot.send_message(
+                message.chat.id,
+                f'Напиши что угодно я обязательно тебе помогу {tg_user.name}'
+            )
+        else:
+            bot.send_message(
+                message.chat.id,
+                f'{tg_user.name} ты написал: \n - {message.text}'
+            )
     else:
         bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
 
