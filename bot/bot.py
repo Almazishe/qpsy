@@ -95,37 +95,6 @@ class BotView(View):
         return HttpResponse('post')
 
 
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
-    msg = bot.send_message(message.chat.id,
-                ('Привет, введи код школьного психолога.'))
-    bot.register_next_step_handler(msg, wait_for_code)
-    
-
-@bot.message_handler(content_types=['text'])
-def any_message(message):
-    data = get_tg_user(message.chat.id)
-    if data['status']:
-        tg_user = data['tg_user']
-        if message.text == reply_keyboard[1]['name']:
-            bot.send_message(
-                message.chat.id,
-                'Позвони тебе помогут\n' + \
-                '8-(776)-168-87-60'
-            )
-        elif message.text == reply_keyboard[0]['name']:
-            bot.send_message(
-                message.chat.id,
-                f'Напиши что угодно я обязательно тебе помогу {tg_user.name}'
-            )
-        else:
-            bot.send_message(
-                message.chat.id,
-                f'{tg_user.name} ты написал: \n - {message.text}'
-            )
-    else:
-        bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
-    
 def wait_for_code(message):
     try:
         data = get_psy(message.text)
@@ -203,6 +172,41 @@ def wait_for_name(message):
 
 
 
+
+
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    msg = bot.send_message(message.chat.id,
+                ('Привет, введи код школьного психолога.'))
+
+    bot.register_next_step_handler(msg, wait_for_code)
+    
+
+@bot.message_handler(content_types=['text'])
+def any_message(message):
+    data = get_tg_user(message.chat.id)
+    if data['status']:
+        tg_user = data['tg_user']
+        if message.text == reply_keyboard[1]['name']:
+            bot.send_message(
+                message.chat.id,
+                'Позвони тебе помогут\n' + \
+                '8-(776)-168-87-60'
+            )
+        elif message.text == reply_keyboard[0]['name']:
+            bot.send_message(
+                message.chat.id,
+                f'Напиши что угодно я обязательно тебе помогу {tg_user.name}'
+            )
+        else:
+            bot.send_message(
+                message.chat.id,
+                f'{tg_user.name} ты написал: \n - {message.text}'
+            )
+    else:
+        bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
+    
 
 
 
