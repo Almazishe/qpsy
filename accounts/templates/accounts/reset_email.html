@@ -1,0 +1,18 @@
+
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Reseting Email{% endblocktrans %}
+{% endblock subject %}
+
+{% block text_body %}
+{% blocktrans %}To confirm that you are trying to reset your email, press the link below{% endblocktrans %}
+
+{% trans "Please go to the following page to reset your email:" %}
+http://localhost:3000/{{url}}
+
+{% trans "If you forgot, your current email is " %}{{user.email}}
+
+{% trans "CLAY team" %}
+
+{% endblock %}
