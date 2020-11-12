@@ -132,10 +132,10 @@ def wait_for_code(message):
                 )
 
                 bot.register_next_step_handler(msg, wait_for_code)
-    except:
+    except Exception as e:
         msg = bot.send_message(
             message.chat.id,
-            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код.'
+            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код. ' + str(e)
         )
 
         bot.register_next_step_handler(msg, wait_for_code)
@@ -171,10 +171,10 @@ def wait_for_name(message):
             )
 
             bot.register_next_step_handler(msg, wait_for_name)
-    except:
+    except Exception as e:
         msg = bot.send_message(
             message.chat.id,
-            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
+            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя. ' + str(e)
         )
 
         bot.register_next_step_handler(msg, wait_for_name)
