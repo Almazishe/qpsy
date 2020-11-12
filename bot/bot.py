@@ -6,7 +6,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from .models import TelegramUser
 
+from telebot import types
 
 import logging
 import telebot
@@ -26,6 +28,59 @@ telebot.logger.setLevel(logging.INFO)
 
 bot = telebot.TeleBot(settings.BOT_TOKEN)
     
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+reply_keyboard = [
+    {'name': 'Написать сообщение психологу'},
+    {'name': 'Горячая линия'},
+]
+
+def create_tg_user(message, psy):
+    try:
+        tg_user = TelegramUser.objects.get_or_create(
+            chat_id = message.chat.id,
+            defaults={
+                'main_psy': psy,
+                'active_psy': psy,
+            },
+        )
+
+        return tg_user
+    except:
+        return None
+
+def get_tg_user(chat_id):
+    res = {}
+    try:
+        tg_user = TelegramUser.objects.get(chat_id=chat_id)
+        res['tg_user'] = tg_user
+        res['status'] = True 
+        return res
+    except:
+        res['status'] = False
+        return res
+
+def get_psy(code):
+    code = int(code)
+    res = {}
+    try:
+        psy = User.objects.get(psy_code=code)
+        res['psy'] = psy
+        res['status'] = True 
+        return res
+    except:
+        res['status'] = False
+        return res
+
+def is_exist(chat_id):
+    try:
+        tg_user = TelegramUser.objects.get(chat_id=chat_id)
+        return True
+    except:
+        return False
+
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BotView(View):
@@ -40,63 +95,118 @@ class BotView(View):
         return HttpResponse('post')
 
 
-@bot.message_handler(commands=['manager', 'start'])
+@bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
 
     
-    msg = bot.reply_to(message,
-                 ('Hi!! Now please type token of you manager ......'))
+    msg = bot.send_message(message.chat.id,
+                 ('Привет, введи код школьного психолога.'))
+
+    if not is_exist(message.chat.id):
+        bot.register_next_step_handler(msg, wait_for_code)
+    else:
+        bot.send_message(message.chat.id,   'У вас уже есть психолог. Вот что я могу: \n\n' + \
+                                            ' - /newname - Сменить имя\n' + \
+                                            ' - /newpsy  - Сменить психолога\n')
 
 
-    # bot.register_next_step_handler(msg, wait_manager_token)
+def wait_for_code(message):
+    try:
+        data = get_psy(message.text)
+
+        if not data['status']:
+            msg = bot.send_message(
+                message.chat.id,
+                text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи код.'
+            )
+
+            bot.register_next_step_handler(msg, wait_for_code)
+        else:
+
+            tg_user = create_tg_user(message=message, psy=data['psy'])
+
+            if tg_user:
+                msg = bot.send_message(
+                    message.chat.id,
+                    text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
+                )
+
+                bot.register_next_step_handler(msg, wait_for_name)
+            else:
+                msg = bot.send_message(
+                    message.chat.id,
+                    text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код.'
+                )
+
+                bot.register_next_step_handler(msg, wait_for_code)
+
+    except:
+        msg = bot.send_message(
+            message.chat.id,
+            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код.'
+        )
+
+        bot.register_next_step_handler(msg, wait_for_code)
+
+def wait_for_name(message):
+    try:
+        data = get_tg_user(message.chat.id)
+
+        if data['status']:
+            tg_user = data['tg_user']
+            tg_user.name = message.text
+            tg_user.save()
+
+            keyboard = reply_keyboard
+            key = types.ReplyKeyboardMarkup(True, False)
+            for i in range(len(keyboard)):
+                but = types.KeyboardButton(keyboard[i]['name'])
+                key.add(but)
+            
+
+
+            msg = bot.send_message(
+                message.chat.id,
+                text = f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
+                reply_markup = key
+            )
+
+            bot.register_next_step_handler(msg, wait_for_choice)
+
+        else:
+            msg = bot.send_message(
+                message.chat.id,
+                text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
+            )
+
+            bot.register_next_step_handler(msg, wait_for_name)
+    except:
+        msg = bot.send_message(
+            message.chat.id,
+            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
+        )
+
+        bot.register_next_step_handler(msg, wait_for_name)
+
+
+
+def wait_for_choice(message):
+    if message.text == reply_keyboard[1]['name']:
+        bot.send_message(
+            message.chat.id,
+            'Позвони тебе помогут\n' + \
+            '8-(776)-168-87-60'
+        )
+    else:
+        tg_user = get_tg_user(message.chat.id)
+        bot.send_message(
+            message.chat.id,
+            f'Напиши что угодно я обязяательно тебе помогу {tg_user.name}'
+        )
 
 @bot.message_handler(content_types=['text'])
 def any_message(message):
     bot.send_message(message.chat.id, message.text)
-
-# @bot.message_handler(content_types=['text'])
-# def chat_messages(message):
-#     try:
-#         client = get_or_create(message)
-#         new_message = Message()
-#         new_message.client = client
-#         new_message.manager = client.manager
-#         new_message.message = message.text
-#         new_message.status = 'received'
-#         new_message.save()
-#         bot.send_message(message.chat.id, 'Sended... Please wait till manager answer you.')
-#     except Exception as e:
-#         bot.send_message(message.chat.id, str(e))
-
-# def wait_manager_token(message):
-#     try:
-#         client = get_or_create(message)
-#         manager = get_manager(message.text)
-
-#         if not manager:
-#             msg = bot.send_message(
-#                 message.chat.id,
-#                 text='No manager with such token, please reenter...'
-#             )
-
-#             bot.register_next_step_handler(msg, wait_manager_token)
-#         else:
-#             client.manager = manager
-#             client.save()
-
-#             msg = bot.send_message(
-#                 message.chat.id,
-#                 text=f'You connected with {manager.name} manager. Now you can freely chat with him.'
-#             )
-#     except:
-#         msg = bot.send_message(
-#             message.chat.id,
-#             text='Something went wrong, please reenter token...'
-#         )
-
-#         bot.register_next_step_handler(msg, wait_manager_token)
-
-
 
 bot.remove_webhook()
 time.sleep(0.1)
