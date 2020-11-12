@@ -99,17 +99,26 @@ class BotView(View):
 def send_welcome(message):
 
     
-    msg = bot.send_message(message.chat.id,
-                 ('Привет, введи код школьного психолога.'))
 
     if not is_exist(message.chat.id):
+        msg = bot.send_message(message.chat.id,
+                 ('Привет, введи код школьного психолога.'))
         bot.register_next_step_handler(msg, wait_for_code)
     else:
-        bot.send_message(message.chat.id,   'У вас уже есть психолог. Вот что я могу: \n\n' + \
-                                            ' - /newname - Сменить имя\n' + \
-                                            ' - /newpsy  - Сменить психолога\n')
+        tg_user = get_tg_user(message.chat.id)
+        bot.send_message(message.chat.id,   f'{tg_user.name} у тебя уже есть психолог {tg_user.active_psy.first_name} {tg_user.active_psy.last_name}. Вот что я могу: \n\n' + \
+                                            ' - /newname - Сменить имя')
 
+@bot.message_handler(commands=['newname'])
+def new_name(message):
+    msg = bot.send_message(
+        message.chat.id,
+        text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
+    )
+    bot.register_next_step_handler(msg, wait_for_name)   
 
+ 
+    
 def wait_for_code(message):
     try:
         data = get_psy(message.text)
