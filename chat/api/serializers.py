@@ -8,6 +8,7 @@ class MessageListSerializer(serializers.ModelSerializer):
         model = Message
         fields = (
             'text',
+            'status',
             'timestamp'
         )
 

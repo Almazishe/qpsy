@@ -1,3 +1,4 @@
+from chat.api.serializers import MessageListSerializer
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +10,7 @@ Manager = get_user_model()
 
 from bot.bot import bot
 
-from chat.views import get_tg_user
+from chat.views import get_messages, get_tg_user
 from chat.views import get_serialized_chats_list
 from chat.models import Message
 from chat.models import RECEIVED
@@ -93,9 +94,43 @@ def get_chats(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_messages(request):
+def get_messages_list(request):
     response_data = {}
     if request.method == 'GET':
         tg_client_id = request.query_params.get('clientID', None)
         if tg_client_id is not None:
-            ...
+            tg_client = get_tg_user(tg_client_id=tg_client_id)
+
+            if tg_client is not None:
+
+                messages = get_messages(tg_client=tg_client)
+                messages.update(is_read=True)
+
+                serializer = MessageListSerializer(messages, many=True)
+                response_data['messages'] = serializer.data
+                response_data['success'] = 'Messages got successfully.'
+                return Response(
+                    response_data,
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                response_data['error'] = 'No Telegram Client with such ID.'
+                return Response(
+                    data=response_data,
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+        else:
+            response_data['error'] = '\'clientID\'  didn\'t came.'
+            return Response(
+                data=response_data,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    else:
+        response_data['error'] = 'Only \'GET\' requests accepted.'
+        return Response(
+            data=response_data,
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
+

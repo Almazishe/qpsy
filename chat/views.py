@@ -9,6 +9,9 @@ def get_tg_user(tg_client_id):
     tg_client = get_object_or_404(TelegramUser, id=tg_client_id)
     return tg_client
 
+def get_messages(tg_client):
+    messages = Message.objects.filter(tg_user=tg_client)
+    return messages
 
 def get_uread_messages_count(tg_client):
     return Message.objects.filter(
