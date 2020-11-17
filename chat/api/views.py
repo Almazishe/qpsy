@@ -47,7 +47,7 @@ def send_message(request):
                         status=status.HTTP_201_CREATED
                     )
                 else:
-                    response_data['error'] = 'It\'s not you Telegram Client FUCK YOU.'
+                    response_data['error'] = 'It\'s not you Telegram Client.'
                     return Response(
                         data=response_data,
                         status=status.HTTP_406_NOT_ACCEPTABLE,
@@ -107,6 +107,10 @@ def get_messages_list(request):
                 messages.update(is_read=True)
 
                 serializer = MessageListSerializer(messages, many=True)
+                response_data['client'] = {
+                    'id': tg_client.id,
+                    'name': tg_client.name
+                }
                 response_data['messages'] = serializer.data
                 response_data['success'] = 'Messages got successfully.'
                 return Response(
