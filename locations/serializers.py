@@ -29,3 +29,22 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
             'name',
             'city'
         )
+
+
+class AdminCityDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = (
+            'code',
+            'name',
+        )
+
+
+class AdminSchoolDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = (
+            'code',
+            'name',
+            'city'
+        )

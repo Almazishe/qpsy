@@ -2,6 +2,21 @@ from rest_framework import serializers
 
 from .models import User
 
+class AdminUsersSerializer(serializers.ModelSerializer):
+    school = ...
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'psy_code',
+            'email',
+            'first_name',
+            'last_name',
+            'level',
+            'city',
+            'school',
+        )
+
 class UserSerializer(serializers.ModelSerializer):
     
     city_name = serializers.CharField(source='city.name', read_only=True)

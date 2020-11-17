@@ -7,13 +7,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import UserCreateSerializer
+from .serializers import AdminUsersSerializer
 from .permissions import IsAdmin
 from .permissions import IsSpecialist
 from .permissions import SelfOrAdmin
+from .models import SPECIALIST, PSYCHOLOGIST
+LEVELS = [SPECIALIST, PSYCHOLOGIST]
 
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
 
 
 @api_view(['POST'])
@@ -47,6 +51,28 @@ def create_user(request):
             )
     else:
         response_data['error'] = 'Only POST request\'s accepted.'
+
+    return Response(
+        data=response_data,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdmin])
+def users_list(request):
+    response_data = {}
+    if request.method == 'GET':
+        users = User.objects.filter(level__in=LEVELS)
+        serializer = AdminUsersSerializer(users, many=True)
+        response_data['users'] = serializer.data
+
+        return Response(
+            response_data,
+            status=status.HTTP_200_OK
+        )
+    else:
+        response_data['error'] = 'Only GET request\'s accepted.'
 
     return Response(
         data=response_data,
