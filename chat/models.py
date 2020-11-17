@@ -3,7 +3,7 @@ from django.db import models
 from bot.models import TelegramUser
 
 SENT = 'SENT'
-RECEIVED= 'FROM'
+RECEIVED= 'RECEIVED'
 
 TO_FROM = (
     (SENT, 'SENT'),
