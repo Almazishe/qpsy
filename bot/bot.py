@@ -31,6 +31,9 @@ bot = telebot.TeleBot(settings.BOT_TOKEN)
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from chat.models import Message
+from chat.models import SENT
+
 reply_keyboard = [
     {'name': 'Написать сообщение психологу'},
     {'name': 'Горячая линия'},
@@ -200,10 +203,12 @@ def any_message(message):
                 f'Напиши что угодно я обязательно тебе помогу {tg_user.name}'
             )
         else:
-            bot.send_message(
-                message.chat.id,
-                f'{tg_user.name} ты написал: \n - {message.text}'
+            message = Message(
+                tg_user=tg_user,
+                text=message.text,
+                status=SENT
             )
+            message.save()
     else:
         bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
     
