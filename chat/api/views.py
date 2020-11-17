@@ -1,7 +1,3 @@
-from bot.bot import bot
-from chat.views import get_tg_user
-from chat.models import Message
-from chat.models import RECEIVED
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -11,6 +7,12 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 Manager = get_user_model()
 
+from bot.bot import bot
+
+from chat.views import get_tg_user
+from chat.views import get_serialized_chats_list
+from chat.models import Message
+from chat.models import RECEIVED
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -27,7 +29,8 @@ def send_message(request):
                     message = Message(
                         tg_user=tg_user,
                         status=RECEIVED,
-                        text=data['text']
+                        text=data['text'],
+                        is_read=True
                     )
                     message.save()
 
@@ -61,7 +64,7 @@ def send_message(request):
                 status=status.HTTP_400_BAD_REQUEST,
             )
     else:
-        response_data['error'] = 'Only \'POST\' requsts accepted.'
+        response_data['error'] = 'Only \'POST\' requests accepted.'
         return Response(
             data=response_data,
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -71,4 +74,19 @@ def send_message(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_chats(request):
-    ...
+    response_data = {}
+    if request.method == 'GET':
+        tg_users = request.user.active_students.all()
+        serialized_data = get_serialized_chats_list(tg_clients=tg_users,  manager=request.user)
+        response_data['chats'] = serialized_data
+        response_data['success'] = 'Chats got successfully.'
+        return Response(
+            response_data,
+            status=status.HTTP_200_OK
+        )
+    else:
+        response_data['error'] = 'Only \'GET\' requests accepted.'
+        return Response(
+            data=response_data,
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
