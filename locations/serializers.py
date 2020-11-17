@@ -1,4 +1,3 @@
-from re import L
 from rest_framework import serializers
 
 from .models import City, Region, School

@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'bot',
+    'chat',
     'accounts',
     'locations'
 ]
