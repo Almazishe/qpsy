@@ -14,7 +14,7 @@ from chat.views import get_messages, get_tg_user
 from chat.views import get_serialized_chats_list
 from chat.models import Message
 from chat.models import RECEIVED
-
+#asd
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message(request):
