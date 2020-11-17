@@ -22,29 +22,37 @@ def send_message(request):
             tg_user = get_tg_user(data['clientID'])
 
             if tg_user:
-                message = Message(
-                    tg_user=tg_user,
-                    status=RECEIVED,
-                    text=data['text']
-                )
-                message.save()
 
-                bot.send_message(
-                    chat_id=tg_user.chat_id,
-                    text=message.text
-                )
+                if tg_user.active_psy.psy_code == request.user.psy_code:
+                    message = Message(
+                        tg_user=tg_user,
+                        status=RECEIVED,
+                        text=data['text']
+                    )
+                    message.save()
 
-                response_data['success'] = 'Message successfully sent to Telegram Client.'
+                    bot.send_message(
+                        chat_id=tg_user.chat_id,
+                        text=message.text
+                    )
 
-                return Response(
-                    data=response_data,
-                    status=status.HTTP_201_CREATED
-                )
+                    response_data['success'] = 'Message successfully sent to Telegram Client.'
+
+                    return Response(
+                        data=response_data,
+                        status=status.HTTP_201_CREATED
+                    )
+                else:
+                    response_data['error'] = 'It\'s not you Telegram Client FUCK YOU.'
+                    return Response(
+                        data=response_data,
+                        status=status.HTTP_406_NOT_ACCEPTABLE,
+                    )
             else:
                 response_data['error'] = 'No Telegram Client with such ID.'
                 return Response(
                     data=response_data,
-                    status=status.HTTP_400_BAD_REQUEST,
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         else:
             response_data['error'] = '\'clientID\' or \'text\' didn\'t came.'
@@ -56,7 +64,7 @@ def send_message(request):
         response_data['error'] = 'Only \'POST\' requsts accepted.'
         return Response(
             data=response_data,
-            status=status.HTTP_400_BAD_REQUEST,
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
 
 
