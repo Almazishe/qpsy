@@ -104,7 +104,7 @@ def wait_for_code(message):
                 message.chat.id,
                 text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи код.'
             )
-
+            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
             bot.register_next_step_handler(msg, wait_for_code)
         else:
             tg_user = create_tg_user(message=message, psy=data['psy'])
@@ -114,21 +114,21 @@ def wait_for_code(message):
                     message.chat.id,
                     text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
                 )
-
+                bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
                 bot.register_next_step_handler(msg, wait_for_name)
             else:
                 msg = bot.send_message(
                     message.chat.id,
                     text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код.'
                 )
-
+                bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
                 bot.register_next_step_handler(msg, wait_for_code)
     except Exception as e:
         msg = bot.send_message(
             message.chat.id,
             text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код. ' + str(e)
         )
-
+        bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
         bot.register_next_step_handler(msg, wait_for_code)
 
 def wait_for_name(message):
@@ -160,14 +160,14 @@ def wait_for_name(message):
                 message.chat.id,
                 text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
             )
-
+            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
             bot.register_next_step_handler(msg, wait_for_name)
     except Exception as e:
         msg = bot.send_message(
             message.chat.id,
             text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя. ' + str(e)
         )
-
+        bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
         bot.register_next_step_handler(msg, wait_for_name)
 
 
