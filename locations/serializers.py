@@ -46,5 +46,4 @@ class AdminSchoolDetailSerializer(serializers.ModelSerializer):
         fields = (
             'code',
             'name',
-            'city'
         )

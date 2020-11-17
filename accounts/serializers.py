@@ -2,8 +2,13 @@ from rest_framework import serializers
 
 from .models import User
 
+from locations.serializers import AdminCityDetailSerializer
+from locations.serializers import AdminSchoolDetailSerializer
+
+
 class AdminUsersSerializer(serializers.ModelSerializer):
-    school = ...
+    school = AdminSchoolDetailSerializer()
+    city = AdminCityDetailSerializer()
     class Meta:
         model = User
         fields = (
