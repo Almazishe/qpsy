@@ -90,3 +90,12 @@ def get_chats(request):
             data=response_data,
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_messages(request):
+    response_data = {}
+    if request.method == 'GET':
+        tg_client_id = request.query_params.get('clientID', None)
+        if tg_client_id is not None:
+            ...
