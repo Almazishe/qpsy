@@ -25,6 +25,7 @@ def get_serialized_chats_list(tg_clients, manager):
     for tg_client in tg_clients:
         data = {}
         data['id'] = tg_client.id
+        data['name'] = tg_client.name
 
         unread = get_uread_messages_count(tg_client=tg_client)
         data['unread'] = unread
