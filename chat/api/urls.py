@@ -1,10 +1,6 @@
 from django.urls import path
 
 from .  import views
-from bot.bot import bot
-
-# for i in range(10):
-    # bot.send_message(914470745, 'PIDORAZ')
 
 
 urlpatterns = [

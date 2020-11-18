@@ -11,6 +11,7 @@ urlpatterns = [
         path("v1/", include([
             path('users/', include('accounts.urls')),
             path('chat/', include('chat.api.urls')),
+            path('locations/', include('locations.urls')),
         ])),
     ]))
 ]
