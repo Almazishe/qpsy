@@ -1,18 +1,17 @@
+from chat.models import SENT
+from chat.models import Message
+import time
+import telebot
+import logging
+from telebot import types
+from .models import TelegramUser
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse 
+from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
-from .models import TelegramUser
-
-from telebot import types
-
-import logging
-import telebot
-import time
 
 
 WEBHOOK_HOST = 'qpsy.herokuapp.com'
@@ -27,22 +26,20 @@ logger = telebot.logger
 telebot.logger.setLevel(logging.INFO)
 
 bot = telebot.TeleBot(settings.BOT_TOKEN)
-    
-from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
-from chat.models import Message
-from chat.models import SENT
 
 reply_keyboard = [
     {'name': 'Написать сообщение психологу'},
     {'name': 'Горячая линия'},
 ]
 
+
 def create_tg_user(message, psy):
     try:
         tg_user = TelegramUser.objects.get_or_create(
-            chat_id = message.chat.id,
+            chat_id=message.chat.id,
             defaults={
                 'main_psy': psy,
                 'active_psy': psy,
@@ -53,16 +50,18 @@ def create_tg_user(message, psy):
     except:
         return None
 
+
 def get_tg_user(chat_id):
     res = {}
     try:
         tg_user = TelegramUser.objects.get(chat_id=chat_id)
         res['tg_user'] = tg_user
-        res['status'] = True 
+        res['status'] = True
         return res
     except:
         res['status'] = False
         return res
+
 
 def get_psy(code):
     code = int(code)
@@ -70,11 +69,12 @@ def get_psy(code):
     try:
         psy = User.objects.get(psy_code=code)
         res['psy'] = psy
-        res['status'] = True 
+        res['status'] = True
         return res
     except:
         res['status'] = False
         return res
+
 
 def is_exist(chat_id):
     try:
@@ -82,7 +82,6 @@ def is_exist(chat_id):
         return True
     except:
         return False
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -110,6 +109,15 @@ def wait_for_code(message):
             bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
             bot.register_next_step_handler(msg, wait_for_code)
         else:
+            try:
+                a = int(message.text)
+            except:
+                msg = bot.send_message(
+                    message.chat.id,
+                    text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи код.'
+                )
+                bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
+                bot.register_next_step_handler(msg, wait_for_code)
             tg_user = create_tg_user(message=message, psy=data['psy'])
 
             if tg_user:
@@ -122,17 +130,19 @@ def wait_for_code(message):
             else:
                 msg = bot.send_message(
                     message.chat.id,
-                    text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код.'
+                    text='Что-то пошло не так... \n\n Пожалуйста перевведи код.'
                 )
                 bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
                 bot.register_next_step_handler(msg, wait_for_code)
     except Exception as e:
         msg = bot.send_message(
             message.chat.id,
-            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи код. ' + str(e)
+            text='Что-то пошло не так... \n\n Пожалуйста перевведи код. ' +
+            str(e)
         )
         bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
         bot.register_next_step_handler(msg, wait_for_code)
+
 
 def wait_for_name(message):
     try:
@@ -148,44 +158,38 @@ def wait_for_name(message):
             for i in range(len(keyboard)):
                 but = types.KeyboardButton(keyboard[i]['name'])
                 key.add(but)
-            
-
 
             bot.send_message(
                 message.chat.id,
-                text = f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
-                reply_markup = key
+                text=f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
+                reply_markup=key
             )
             bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-
 
         else:
             msg = bot.send_message(
                 message.chat.id,
-                text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
+                text='Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
             )
             bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
             bot.register_next_step_handler(msg, wait_for_name)
     except Exception as e:
         msg = bot.send_message(
             message.chat.id,
-            text = 'Что-то пошло не так... \n\n Пожалуйста перевведи имя. ' + str(e)
+            text='Что-то пошло не так... \n\n Пожалуйста перевведи имя. ' +
+            str(e)
         )
         bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
         bot.register_next_step_handler(msg, wait_for_name)
 
 
-
-
-
-
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     msg = bot.send_message(message.chat.id,
-                ('Привет, введи код школьного психолога.'))
+                           ('Привет, введи код школьного психолога.'))
 
     bot.register_next_step_handler(msg, wait_for_code)
-    
+
 
 @bot.message_handler(content_types=['text'])
 def any_message(message):
@@ -195,7 +199,7 @@ def any_message(message):
         if message.text == reply_keyboard[1]['name']:
             bot.send_message(
                 message.chat.id,
-                'Позвони тебе помогут\n' + \
+                'Позвони тебе помогут\n' +
                 '8-(776)-168-87-60'
             )
         elif message.text == reply_keyboard[0]['name']:
@@ -211,9 +215,8 @@ def any_message(message):
             )
             message.save()
     else:
-        bot.send_message(message.chat.id, f'Введи команду /start, чтобы начать.')
-    
-
+        bot.send_message(
+            message.chat.id, f'Введи команду /start, чтобы начать.')
 
 
 bot.remove_webhook()
