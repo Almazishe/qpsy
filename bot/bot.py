@@ -111,36 +111,31 @@ def wait_for_code(message):
         else:
             try:
                 a = int(message.text)
+                tg_user = create_tg_user(message=message, psy=data['psy'])
+
+                if tg_user:
+                    msg = bot.send_message(
+                        message.chat.id,
+                        text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
+                    )
+                    bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
+                    bot.register_next_step_handler(msg, wait_for_name)
+                else:
+                    bot.send_message(
+                        message.chat.id,
+                        text='Что-то пошло не так... \n\n Пожалуйста перевведи команду /start'
+                    )
             except:
                 msg = bot.send_message(
                     message.chat.id,
                     text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи /start.'
                 )
                 bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-            tg_user = create_tg_user(message=message, psy=data['psy'])
-
-            if tg_user:
-                msg = bot.send_message(
-                    message.chat.id,
-                    text='Как к тебе обращаться? =) \n Можешь не вводить настоящего имени (Например: \'Друг\').'
-                )
-                bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-                bot.register_next_step_handler(msg, wait_for_name)
-            else:
-                msg = bot.send_message(
-                    message.chat.id,
-                    text='Что-то пошло не так... \n\n Пожалуйста перевведи код.'
-                )
-                bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-                bot.register_next_step_handler(msg, wait_for_code)
     except Exception as e:
-        msg = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            text='Что-то пошло не так... \n\n Пожалуйста перевведи код. ' +
-            str(e)
+            text='Что-то пошло не так... \n\n Пожалуйста перевведи команду /start'
         )
-        bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-        bot.register_next_step_handler(msg, wait_for_code)
 
 
 def wait_for_name(message):
@@ -163,23 +158,17 @@ def wait_for_name(message):
                 text=f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
                 reply_markup=key
             )
-            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
 
         else:
-            msg = bot.send_message(
+            bot.send_message(
                 message.chat.id,
-                text='Что-то пошло не так... \n\n Пожалуйста перевведи имя.'
+                text='Что-то пошло не так... \n\n Пожалуйста перевведи /start.'
             )
-            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-            bot.register_next_step_handler(msg, wait_for_name)
     except Exception as e:
         msg = bot.send_message(
             message.chat.id,
-            text='Что-то пошло не так... \n\n Пожалуйста перевведи имя. ' +
-            str(e)
+            text='Что-то пошло не так... \n\n Пожалуйста перевведи /start. '
         )
-        bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-        bot.register_next_step_handler(msg, wait_for_name)
 
 
 @bot.message_handler(commands=['start', 'help'])
