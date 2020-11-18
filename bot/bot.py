@@ -156,6 +156,7 @@ def wait_for_name(message):
                 text = f'Привет {tg_user.name}! =) , выбери что ты хотел бы сделать... ',
                 reply_markup = key
             )
+            bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
 
 
         else:
@@ -182,8 +183,7 @@ def wait_for_name(message):
 def send_welcome(message):
     msg = bot.send_message(message.chat.id,
                 ('Привет, введи код школьного психолога.'))
-                
-    bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
+
     bot.register_next_step_handler(msg, wait_for_code)
     
 
