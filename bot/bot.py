@@ -114,10 +114,9 @@ def wait_for_code(message):
             except:
                 msg = bot.send_message(
                     message.chat.id,
-                    text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи код.'
+                    text='Нет школьного психолога с данным кодом. \n\n Пожалуйста перевведи /start.'
                 )
                 bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
-                bot.register_next_step_handler(msg, wait_for_code)
             tg_user = create_tg_user(message=message, psy=data['psy'])
 
             if tg_user:
