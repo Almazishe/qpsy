@@ -1,4 +1,3 @@
-from bot.bot import chat
 from django.shortcuts import get_object_or_404
 from bot.models import TelegramUser
 from bot.models import ChatState
