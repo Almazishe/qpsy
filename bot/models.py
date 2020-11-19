@@ -36,3 +36,21 @@ class TelegramUser(models.Model):
     class Meta:
         verbose_name = 'Ученик'
         verbose_name_plural = 'Ученики'
+
+
+class ChatState(models.Model):
+    STATES = (
+        (0, 0), #START
+        (1, 1), #CODE
+        (2, 2), #NAME
+        (3, 3), #PROCCESS
+    )
+    chat_id = models.PositiveIntegerField(
+        verbose_name = 'Код чата',
+        unique = True,
+    )
+
+
+    state = models.PositiveIntegerField(
+        choices=STATES,
+    )
