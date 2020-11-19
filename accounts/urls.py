@@ -1,3 +1,4 @@
+from accounts.views import change_status
 from django.urls import path
 
 from . import views
@@ -5,5 +6,6 @@ from . import views
 urlpatterns = [
     path('create', views.create_user),
     path('list', views.users_list),
-    path('update-email', views.update_email)
+    path('update-email', views.update_email),
+    path('update-status', views.change_status)
 ]

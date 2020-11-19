@@ -136,6 +136,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    def get_clients_count(self):
+        return self.active_students.count()
+
     def set_psy_code(self):
         try:
             self.psy_code = int(''.join(random.choices(string.digits, k=8)))
