@@ -14,12 +14,52 @@ from .permissions import SelfOrAdmin
 from .models import SPECIALIST, PSYCHOLOGIST
 LEVELS = [SPECIALIST, PSYCHOLOGIST]
 
+from .utils import normalize_email
+
+
 
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, SelfOrAdmin])
+def update_email(request):
+    response_data = {}
+    if request.method == 'POST':
+        data = request.data
+        if 'email' in data:
+            try:
+                user = request.user 
+                email = normalize_email(data['email'])
+                user.email = email
+                user.save()
 
+                response_data['success'] = 'Email changed successfully.'
+                return Response(
+                    data=response_data,
+                    status=status.HTTP_202_ACCEPTED
+                )
+            except Exception as e:
+                response_data['error'] = 'Email not correct format'
+                response_data['e'] = str(e)
+                return Response(
+                    data=response_data,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            response_data['error'] = 'No email in data body.'
+            return Response(
+                data=response_data,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    else:
+        response_data['error'] = 'Only POST request\'s accepted.'
+
+    return Response(
+        data=response_data,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdmin])

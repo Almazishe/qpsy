@@ -1,4 +1,6 @@
+aiodns==2.0.0
 asgiref==3.3.1
+autopep8==1.5.4
 certifi==2020.11.8
 cffi==1.14.3
 chardet==3.0.4
@@ -14,6 +16,7 @@ django-templated-mail==1.1.1
 djangorestframework==3.12.2
 djangorestframework-simplejwt==4.5.0
 djoser==2.1.0
+email-normalize==1.0.4
 gunicorn==20.0.4
 idna==2.10
 itypes==1.2.0
@@ -22,6 +25,8 @@ MarkupSafe==1.1.1
 oauthlib==3.1.0
 Pillow==8.0.1
 psycopg2==2.8.6
+pycares==3.1.1
+pycodestyle==2.6.0
 pycparser==2.20
 PyJWT==1.7.1
 pyTelegramBotAPI==3.7.3
@@ -33,6 +38,7 @@ six==1.15.0
 social-auth-app-django==4.0.0
 social-auth-core==3.3.3
 sqlparse==0.4.1
+toml==0.10.2
 uritemplate==3.0.1
 urllib3==1.25.11
 whitenoise==5.2.0
