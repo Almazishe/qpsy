@@ -34,7 +34,7 @@ def get_tg_user(chat_id):
 
 def get_or_create_current_state(chat_id):
     try:
-        chat_state = ChatState.objects.get(chat_id)
+        chat_state = ChatState.objects.get(chta_id=chat_id)
     except:
         chat_state = ChatState.objects.create(
             chat_id=chat_id,
