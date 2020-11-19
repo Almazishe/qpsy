@@ -1,3 +1,4 @@
+from bot.bot import chat
 from django.shortcuts import get_object_or_404
 from bot.models import TelegramUser
 from bot.models import ChatState
@@ -33,12 +34,13 @@ def get_tg_user(chat_id):
     return tg_user
 
 def get_or_create_current_state(chat_id):
-    chat_state = ChatState.objects.get_or_create(
-        chat_id=chat_id,
-        defaults={
-            state: 0,
-        }
-    )
+    try:
+        chat_state = ChatState.objects.get(chat_id)
+    except:
+        chat_state = ChatState.objects.create(
+            chat_id=chat_id,
+            state=0
+        )
     return chat_state
 
 
