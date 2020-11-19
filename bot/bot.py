@@ -63,7 +63,9 @@ def send_welcome(message):
             text='У вас уже есть психолог' 
         )
     except Exception as e:
+        print('BEFORE')
         chat_state = get_or_create_current_state(message.chat.id)
+        print('AFTER' + str(chat_state))
         if chat_state.state == 0:
             chat_state.state = 1
             chat_state.save()
