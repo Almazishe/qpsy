@@ -10,9 +10,9 @@ def get_tg_user(chat_id):
 def get_or_create_current_state(chat_id):
     chat_state = ChatState.objects.get_or_create(
         chat_id=chat_id,
-        defaults=[
-            state=0,
-        ]
+        defaults={
+            state: 0,
+        }
     )
     return chat_state.state
 
