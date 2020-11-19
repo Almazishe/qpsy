@@ -78,6 +78,9 @@ def get_chats(request):
     response_data = {}
     if request.method == 'GET':
         tg_users = request.user.active_students.all()
+        if 'search' in request.GET:
+            tg_users = tg_users.filter(name__icontains=request.GET['search'])
+        
         serialized_data = get_serialized_chats_list(tg_clients=tg_users,  manager=request.user)
         response_data['chats'] = serialized_data
         response_data['success'] = 'Chats got successfully.'
