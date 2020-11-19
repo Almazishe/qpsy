@@ -66,8 +66,8 @@ class BotView(View):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    tg_user = get_tg_user(message.chat.id)
     try:
+        tg_user = get_tg_user(message.chat.id)
         if tg_user:
             bot.send_message(
                 message.chat.id,
