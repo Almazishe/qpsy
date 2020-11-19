@@ -4,6 +4,7 @@ User = get_user_model()
 from bot.models import TelegramUser
 
 from .models import SPECIALIST
+from .models import ONLINE
 
 def normalize_email(email):
     try:
@@ -16,7 +17,7 @@ def normalize_email(email):
 
 
 def get_the_most_free_spec():
-    specialists = User.objects.filter(level=SPECIALIST)
+    specialists = User.objects.filter(level=SPECIALIST, status=ONLINE)
     specialist = None
     min_count = TelegramUser.objects.all().count()
 
