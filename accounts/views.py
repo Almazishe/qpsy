@@ -41,8 +41,7 @@ def update_email(request):
                     status=status.HTTP_202_ACCEPTED
                 )
             except Exception as e:
-                response_data['error'] = 'Email not correct format'
-                response_data['e'] = str(e)
+                response_data['error'] = 'Email not correct format. Must be <email_name>@<domain_part>'
                 return Response(
                     data=response_data,
                     status=status.HTTP_400_BAD_REQUEST

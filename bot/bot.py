@@ -136,52 +136,6 @@ def chat(message):
     except:
         bot.send_message(message.chat.id,  f'ERROR[chat]: {str(e)}')
         
-    
-
-# @bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_ENTER_AGE.value)
-# def user_entering_age(message):
-#     # А вот тут сделаем проверку
-#     if not message.text.isdigit():
-#         # Состояние не меняем, поэтому только выводим сообщение об ошибке и ждём дальше
-#         bot.send_message(message.chat.id, "Что-то не так, попробуй ещё раз!")
-#         return
-#     # На данном этапе мы уверены, что message.text можно преобразовать в число, поэтому ничем не рискуем
-#     if int(message.text) < 5 or int(message.text) > 100:
-#         bot.send_message(message.chat.id, "Какой-то странный возраст. Не верю! Отвечай честно.")
-#         return
-#     else:
-#         # Возраст введён корректно, можно идти дальше
-#         bot.send_message(message.chat.id, "Когда-то и мне было столько лет...эх... Впрочем, не будем отвлекаться. "
-#                                           "Отправь мне какую-нибудь фотографию.")
-#         dbworker.set_state(message.chat.id, config.States.S_SEND_PIC.value)
-
-
-# @bot.message_handler(content_types=['text'])
-# def any_message(message):
-#     data = get_tg_user(message.chat.id)
-#     if data['status']:
-#         tg_user = data['tg_user']
-#         if message.text == reply_keyboard[1]['name']:
-#             bot.send_message(
-#                 message.chat.id,
-#                 'Позвони тебе помогут\n' +
-#                 '8-(776)-168-87-60'
-#             )
-#         elif message.text == reply_keyboard[0]['name']:
-#             bot.send_message(
-#                 message.chat.id,
-#                 f'Напиши что угодно я обязательно тебе помогу {tg_user.name}'
-#             )
-#         else:
-#             message = Message(
-#                 tg_user=tg_user,
-#                 text=message.text,
-#                 status=SENT
-#             )
-#             message.save()
-#     else:
-#         bot.send_message(
-#             message.chat.id, f'Введи команду /start, чтобы начать.')
 
 
 bot.remove_webhook()

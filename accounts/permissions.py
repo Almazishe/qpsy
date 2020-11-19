@@ -16,3 +16,4 @@ class SelfOrAdmin(BasePermission):
     message = 'Это не твой аккаунт или ты не \'Администратор\'.'
     def has_object_permission(self, request, view, obj):
         return bool(request.user and (request.user == obj or request.user.is_superuser == True))
+

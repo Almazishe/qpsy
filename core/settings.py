@@ -27,6 +27,7 @@ INSTALLED_APPS = [
 
     'bot',
     'chat',
+    'news',
     'accounts',
     'locations'
 ]

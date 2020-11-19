@@ -12,6 +12,7 @@ urlpatterns = [
             path('users/', include('accounts.urls')),
             path('chat/', include('chat.api.urls')),
             path('locations/', include('locations.urls')),
+            path('news/', include('news.api.urls'))
         ])),
     ]))
 ]
