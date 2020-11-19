@@ -44,4 +44,3 @@ def get_or_create_current_state(chat_id):
     return chat_state
 
 
-# def create_tg_user(chat_id):
