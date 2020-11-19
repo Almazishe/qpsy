@@ -26,6 +26,3 @@ def get_the_most_free_spec():
             min_count =  spec.get_clients_count()
     
     return specialist
-        
-
-# from accounts.utils import get_the_most_free_spec

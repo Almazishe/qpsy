@@ -14,9 +14,8 @@ from .models import SPECIALIST, PSYCHOLOGIST
 LEVELS = [SPECIALIST, PSYCHOLOGIST]
 from .models import ONLINE
 from .models import OFFLINE
-
-
 from .utils import normalize_email
+from .utils import get_the_most_free_spec
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -29,6 +28,8 @@ def change_status(request):
         if request.user.status == ONLINE:
             request.user.status = OFFLINE
             request.user.save()
+            spec = get_the_most_free_spec()
+            
         else:
             request.user.status = ONLINE
             request.user.save()  
